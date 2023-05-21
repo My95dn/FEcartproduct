@@ -9,17 +9,17 @@ function Register() {
   const [password, setPassword] = useState("");
   const [retypePassword, setretypePassword] = useState("");
   const [error, setEroor] = useState("success");
-  const [checkEmail, setCheckemail] = useState("success")
-  console.log(email, retypeEmail)
+  const [checkEmail, setCheckemail] = useState("success");
+  console.log(email, retypeEmail);
   const handleEmail = (e) => {
     setEmail(e.target.value);
   };
   const handleretypeEmail = (e) => {
     setRetypeEmail(e.target.value);
-    if(retypeEmail === email) {
-      setCheckemail("failure")
+    if (e.target.value === email) {
+      setCheckemail("failure");
     } else {
-      setCheckemail("success")
+      setCheckemail("success");
     }
   };
   const handlePasswords = (e) => {
@@ -38,7 +38,7 @@ function Register() {
     setPassword("");
     setretypePassword("");
     setEroor(data.data.message);
-    console.log(data)
+    
   };
 
   return (
@@ -86,7 +86,6 @@ function Register() {
               onChange={handlePasswords}
               value={password}
             />
-            
           </div>
           <div className="app-Password">
             <input
@@ -122,7 +121,6 @@ const Registers = styled.div`
   .container-email {
     position: relative;
     .password-error {
-      
       position: absolute;
       display: none;
       bottom: -84%;

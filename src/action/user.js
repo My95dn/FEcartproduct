@@ -102,3 +102,10 @@ export const handleEditGender = (payload) => {
 
     }
 }
+export const handleToken = (payload) => {
+    return {
+        type: 'Token',
+        payload
+
+    }
+}

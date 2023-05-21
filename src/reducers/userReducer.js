@@ -1,6 +1,7 @@
 const initState = {
     users: null,
-    userAll: []
+    userAll: [],
+    Token: []
 }
 const handleUser = (state = initState, action) => {
     let dataUser
@@ -17,7 +18,12 @@ const handleUser = (state = initState, action) => {
                     userAll: [ action.payload]
                 }
                 break
-
+            case 'Token':
+                dataUser = {
+                    ...state,
+                    Token: [action.payload]
+                } 
+                break
 
         default:
            return state ?? initState

@@ -2,20 +2,27 @@ import styled from "styled-components";
 import { BsChevronRight } from "react-icons/bs";
 import axios from "axios";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { handlEmail, handlePassword, handleresdata } from "../../action/user";
+import {
+  handlEmail,
+  handlePassword,
+  handleresdata,
+  handleToken,
+} from "../../action/user";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import Register from "../Login/Register";
+import { toast, ToastContainer } from "react-toastify";
 function Login() {
   let dispatch = useDispatch();
   const [password, setPassword] = useState(true);
   const [icon, setIcon] = useState(true);
   const [register, setRegister] = useState(false);
-  console.log(password);
   let dataEmail = useSelector((state) => state.input.email);
   let datapassword = useSelector((state) => state.input.password);
   let resDatauser = useSelector((state) => state.user.users);
+  let resTokenUser = useSelector((state) => state.user.Token);
+  console.log("check", resTokenUser);
   const navigate = useNavigate();
   let path = "/userAll";
 
@@ -26,6 +33,7 @@ function Login() {
   };
 
   const handlesubmitdata = async () => {
+    console.log('không lọt vào hàm token' )
     await axios
       .post("http://localhost:8080/api/loginUser", {
         email: dataEmail,
@@ -33,14 +41,37 @@ function Login() {
       })
       .then(async (res) => {
         if (res) {
-          let action = await handleresdata(res.data.user);
+          console.log(res);
+          let action = handleresdata(res.data.user);
           dispatch(action);
           setPassword(res.data.user);
+          let actionGetToken = handleToken(res.data.token);
+          dispatch(actionGetToken);
+        } else {
+          console.log("error");
+          toast.error("error");
         }
       })
       .catch((error) => {
         console.log(error);
       });
+    if (resTokenUser.accessToken) {
+      console.log('đã lọt vào hàm token' )
+      let accessTokenClient = resTokenUser.accessToken;
+      await axios.post("http://localhost:8080/api/loginUser", {
+        headers: {
+          authorization: `Bearer ${accessTokenClient}`,
+        },
+      });
+    } else {
+      console.log('đã lọt vào hàm refresh token' )
+      let RefreshTokenClient = resTokenUser.RefreshToken;
+      await axios.post("http://localhost:8080/api/Veryfy", {
+        headers: {
+          authorization: `Bearer ${RefreshTokenClient}`,
+        },
+      });
+    }
   };
 
   useEffect(() => {
@@ -59,11 +90,14 @@ function Login() {
   };
   const handleRegister = () => {
     setRegister((pre) => !pre);
-    console.log("alo");
+  };
+  const handleLoginwithGoogle = async () => {
+    await axios.get("http://localhost:8080/auth/google");
   };
   return (
     <div>
       <LoginContent>
+        <ToastContainer />
         <div style={{ height: "120px" }}>
           <img
             src="https://static.parastorage.com/services/login-statics/1.2675.0/images/wix-logo.svg"
@@ -158,11 +192,15 @@ function Login() {
                 }
               >
                 <div
-                  style={register ? {
-                    flexBasis: "50%",
-                    display:  "flex" ,
-                    flexDirection: 'column-reverse'
-                  } : {}}
+                  style={
+                    register
+                      ? {
+                          flexBasis: "50%",
+                          display: "flex",
+                          flexDirection: "column-reverse",
+                        }
+                      : {}
+                  }
                 >
                   <div className="btn-image">
                     <img
@@ -170,7 +208,12 @@ function Login() {
                       alt="logo-google"
                       className="logo-google"
                     />
-                    <span className="text-google">Tiếp tục với Google</span>
+                    <span
+                      className="text-google"
+                      onClick={handleLoginwithGoogle}
+                    >
+                      Tiếp tục với Google
+                    </span>
                   </div>
                 </div>
                 <div
